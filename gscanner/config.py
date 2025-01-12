@@ -27,6 +27,13 @@ def get_config() -> Any:
 
     parser.add_argument("--debug", action="store_true", default=False, help="debug")
     parser.add_argument("--image", default="", help="open image instead of webcam")
+
+    parser.add_argument(
+        "--height",
+        type=int,
+        default=500,
+        help="image height for image processing",
+    )
     config, _ = parser.parse_known_args()
 
     if config.debug:

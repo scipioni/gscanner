@@ -2,7 +2,7 @@ from gscanner.camera import Camera
 from gscanner.gui import Gui
 from . import utils
 import sys
-import cv2 as cv
+import imutils
 
 
 def main():
@@ -13,14 +13,16 @@ def main():
     if not camera.init():
         sys.exit(1 )
 
-
     def on_idle():
         frame = camera.get()
-        frame_debug = frame.copy()
-        box = utils.detect_white_paper(frame_debug)
+        
+        ratio = frame.shape[0] / config.height
+        frame_debug = imutils.resize(frame, height = config.height)
+
+        box = utils.detect_paper_canny(frame_debug)
         if box is not None:
-            cv.polylines(frame_debug, [box], True, (0,255,0), 2)
-            utils.show_box(frame_debug, box)
+            warped = utils.warp(frame, box, ratio)
+            utils.show(warped, title="warped")
         gui.show(frame_debug)
         return True
 

@@ -1,55 +1,82 @@
 import cv2 as cv
 import numpy as np
-
-def detect_white_paper(img):
-    gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-    h,w = gray.shape[:2]
-
-    _, thresh = cv.threshold(gray, 128, 255, cv.THRESH_BINARY)
-    contours, _ = cv.findContours(thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-
-    white_paper_contours = []
-    for cnt in contours:
-        area = cv.contourArea(cnt)/(h*w)
-        if area > .05:  # Adjust this threshold as needed
-            peri = cv.arcLength(cnt, True)
-            approx = cv.approxPolyDP(cnt, 0.02 * peri, True)
-            if len(approx) == 4:
-                white_paper_contours.append(cnt)
-    
-    boxes = []
-    if len(white_paper_contours) > 0:
-        for cnt in white_paper_contours:
-            x, y, w, h = cv.boundingRect(cnt)
-            cv.rectangle(img, (x, y), (x + w, y + h), (0, 0, 255), 1)
-
-            rect = cv.minAreaRect(cnt)
-            box = cv.boxPoints(rect)
-            box = np.round(box).astype(int)
-            boxes.append(box)
-        return boxes[0]
-    return None
-
-def show_box(img, box):
-    for i,p in enumerate(box):
-        cv.circle(img, p, 30, (255,0,0), -1) 
-        cv.putText(img, str(i), p, cv.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 2, cv.LINE_AA)
-
-def warpPerspective(img, box):
-    """
-    p2  p3
-
-    p1  p4
-    """
-    p1,p2,p3,p4 = box
-    width = max([p3[0]-p2[0], p4[0]-p1[0]])
-    height = max([p1[1]-p2[1], p4[1]-p3[1]])
-
-    # converted_red_pixel_value = [0,0]
-    # converted_green_pixel_value = [width,0]
-    # converted_black_pixel_value = [0,height]
-    # converted_blue_pixel_value = [width,height]
-    # converted_points = np.float32([converted_red_pixel_value,converted_green_pixel_value, converted_black_pixel_value,converted_blue_pixel_value])
+import imutils
 
 
-    target = np.float32([[0,height], [0,0], [width,0], [width,height]])
+def detect_paper_canny(image, debug=False):
+    gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+    gray = cv.GaussianBlur(gray, (5, 5), 0)
+    edged = cv.Canny(gray, 75, 200)
+
+    cnts = cv.findContours(edged.copy(), cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
+    cnts = imutils.grab_contours(cnts)
+    cnts = sorted(cnts, key = cv.contourArea, reverse = True)[:5]
+
+    screenCnt = None
+    for c in cnts:
+        # approximate the contour
+        peri = cv.arcLength(c, True)
+        approx = cv.approxPolyDP(c, 0.02 * peri, True)
+        # if our approximated contour has four points, then we can assume that we have found our screen
+        if len(approx) == 4:
+            screenCnt = approx
+            break
+
+    if screenCnt is not None:
+        cv.drawContours(image, [screenCnt], -1, (0, 255, 0), 2)
+
+    if debug:
+        cv.imshow("canny", edged)
+        cv.imshow("image", image)
+        cv.waitKey(1)
+
+    return screenCnt
+
+def warp(image, box, ratio):
+    warped = four_point_transform(image, box.reshape(4, 2) * ratio)
+    #warped = cv.cvtColor(warped, cv.COLOR_BGR2GRAY)
+    #T = threshold_local(warped, 11, offset = 10, method = "gaussian")
+    #warped = (warped > T).astype("uint8") * 255
+    return warped
+
+
+def order_points(pts):
+    rect = np.zeros((4, 2), dtype="float32")
+
+    s = pts.sum(axis=1)
+    rect[0] = pts[np.argmin(s)]
+    rect[2] = pts[np.argmax(s)]
+
+    diff = np.diff(pts, axis=1)
+    rect[1] = pts[np.argmin(diff)]
+    rect[3] = pts[np.argmax(diff)]
+
+    return rect
+
+
+def four_point_transform(image, pts):
+    rect = order_points(pts)
+    (tl, tr, br, bl) = rect
+
+    widthA = np.sqrt(((br[0] - bl[0]) ** 2) + ((br[1] - bl[1]) ** 2))
+    widthB = np.sqrt(((tr[0] - tl[0]) ** 2) + ((tr[1] - tl[1]) ** 2))
+    maxWidth = max(int(widthA), int(widthB))
+
+    heightA = np.sqrt(((tr[0] - br[0]) ** 2) + ((tr[1] - br[1]) ** 2))
+    heightB = np.sqrt(((tl[0] - bl[0]) ** 2) + ((tl[1] - bl[1]) ** 2))
+    maxHeight = max(int(heightA), int(heightB))
+
+    dst = np.array([
+        [0, 0],
+        [maxWidth - 1, 0],
+        [maxWidth - 1, maxHeight - 1],
+        [0, maxHeight - 1]], dtype="float32")
+
+    M = cv.getPerspectiveTransform(rect, dst)
+    warped = cv.warpPerspective(image, M, (maxWidth, maxHeight))
+
+    return warped
+
+def show(image, title="image"):
+    cv.imshow(title, image)
+    cv.waitKey(1)
