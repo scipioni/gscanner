@@ -7,17 +7,18 @@ import imutils
 
 def main():
     from .config import get_config
+
     config = get_config()
 
     camera = Camera(config)
     if not camera.init():
-        sys.exit(1 )
+        sys.exit(1)
 
     def on_idle():
         frame = camera.get()
-        
+
         ratio = frame.shape[0] / config.height
-        frame_debug = imutils.resize(frame, height = config.height)
+        frame_debug = imutils.resize(frame, height=config.height)
 
         box = utils.detect_paper_canny(frame_debug)
         if box is not None:
