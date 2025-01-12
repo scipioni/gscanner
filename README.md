@@ -1,4 +1,4 @@
-# pyscan
+# gscanner
 
 ```bash
 # on image
