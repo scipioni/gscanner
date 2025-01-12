@@ -1,0 +1,30 @@
+[project]
+name = "gscanner"
+version = "0.0.1"
+description = ""
+authors = [
+    {name = "Stefano Scipioni", email = "stefano.scipioni@csgalileo.net"},
+]
+
+dependencies = [
+    "configargparse>=1.7"
+]
+requires-python = ">=3.10"
+readme = "README.md"
+license = {text = "MIT"}
+[project.scripts]
+gscanner = "gscanner.main:run"
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.pdm.build]
+excludes = ["**/.*_cache", "**/__pycache__"]
+includes = ["gscanner"]
+
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "jurigged>=0.5.7",
+]
