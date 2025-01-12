@@ -53,5 +53,4 @@ def get_config() -> Any:
         level=logging.DEBUG if config.debug else logging.INFO,
     )
 
-
     return config

@@ -10,7 +10,7 @@ def detect_paper_canny(image, debug=False):
 
     cnts = cv.findContours(edged.copy(), cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
-    cnts = sorted(cnts, key = cv.contourArea, reverse = True)[:5]
+    cnts = sorted(cnts, key=cv.contourArea, reverse=True)[:5]
 
     screenCnt = None
     for c in cnts:
@@ -32,11 +32,12 @@ def detect_paper_canny(image, debug=False):
 
     return screenCnt
 
+
 def warp(image, box, ratio):
     warped = four_point_transform(image, box.reshape(4, 2) * ratio)
-    #warped = cv.cvtColor(warped, cv.COLOR_BGR2GRAY)
-    #T = threshold_local(warped, 11, offset = 10, method = "gaussian")
-    #warped = (warped > T).astype("uint8") * 255
+    # warped = cv.cvtColor(warped, cv.COLOR_BGR2GRAY)
+    # T = threshold_local(warped, 11, offset = 10, method = "gaussian")
+    # warped = (warped > T).astype("uint8") * 255
     return warped
 
 
@@ -66,16 +67,16 @@ def four_point_transform(image, pts):
     heightB = np.sqrt(((tl[0] - bl[0]) ** 2) + ((tl[1] - bl[1]) ** 2))
     maxHeight = max(int(heightA), int(heightB))
 
-    dst = np.array([
-        [0, 0],
-        [maxWidth - 1, 0],
-        [maxWidth - 1, maxHeight - 1],
-        [0, maxHeight - 1]], dtype="float32")
+    dst = np.array(
+        [[0, 0], [maxWidth - 1, 0], [maxWidth - 1, maxHeight - 1], [0, maxHeight - 1]],
+        dtype="float32",
+    )
 
     M = cv.getPerspectiveTransform(rect, dst)
     warped = cv.warpPerspective(image, M, (maxWidth, maxHeight))
 
     return warped
+
 
 def show(image, title="image"):
     cv.imshow(title, image)
