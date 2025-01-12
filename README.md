@@ -5,7 +5,7 @@
 gscanner --image examples/1.jpg
 
 # on webcam
-gscanner
+gscanner --camera 0
 
 
 ```

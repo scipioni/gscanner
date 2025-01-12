@@ -34,6 +34,12 @@ def get_config() -> Any:
         default=500,
         help="image height for image processing",
     )
+    parser.add_argument(
+        "--camera",
+        type=int,
+        default=1,
+        help="camera to open",
+    )
     config, _ = parser.parse_known_args()
 
     if config.debug:

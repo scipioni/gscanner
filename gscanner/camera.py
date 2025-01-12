@@ -20,7 +20,7 @@ class Camera:
             return True
         else:
             self.grey = grey
-            self.cap = cv.VideoCapture(0)
+            self.cap = cv.VideoCapture(self.config.camera)
             if not self.cap.isOpened():
                 print("Could not open video device")
                 return False
