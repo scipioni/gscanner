@@ -1,5 +1,16 @@
 # pyscan
 
+```bash
+# on image
+gscanner --image examples/1.jpg
+
+# on webcam
+gscanner
+
+
+```
+
+
 ##
 
 ```bash
