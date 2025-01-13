@@ -1,17 +1,19 @@
-from gscanner.camera import Camera
-from gscanner.gui import Gui
-from . import utils
 import sys
+
 import imutils
-import time
+
+from .camera import Camera
+from .gui import Gui
+from . import utils
+
 
 def main():
     from .config import get_config
 
     config = get_config()
-    
+
     gui = Gui()
-    
+
     camera = Camera(config)
     if not camera.init():
         sys.exit(1)
@@ -21,16 +23,16 @@ def main():
 
         if config.fish:
             frame = utils.unfisheye(frame)
-    
+
         ratio = frame.shape[0] / config.height
         frame_debug = imutils.resize(frame, height=config.height)
-        #utils.show(frame_debug)
+        # utils.show(frame_debug)
         box = utils.detect_paper_canny(frame_debug, debug=config.debug)
-        
+
         if box is not None:
             pass
             warped = utils.warp(frame, box, ratio)
-            #utils.show(warped, title="warped")
+            # utils.show(warped, title="warped")
         gui.show(frame_debug)
         return True
 

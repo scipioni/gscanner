@@ -31,3 +31,6 @@ includes = ["gscanner"]
 dev = [
     "jurigged>=0.6.0",
 ]
+
+[tool.ruff.lint]
+select = ["I"]

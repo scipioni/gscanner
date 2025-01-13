@@ -1,0 +1,29 @@
+# TODO: setup the git remote configs
+# ├── lefthook-python.yml
+# ├── lefthook-ts.yml
+# └── lefthook-other.yml
+# the use the remote configs with:
+# remote:
+#   git: https://github.com/organization/lefthook-configs
+#   config: lefthook-golang.yml
+
+# Ensure that lefthook is installed
+assert_lefthook_installed: true
+
+pre-commit:
+  commands:
+
+    # Optional
+    # backend-lint:
+    #   tags: backend style
+    #   root: "backend/"
+    #   glob: "*.py"
+    #   run: ruff check {staged_files}
+    #   stage_fixed: true
+
+    backend-format:
+      tags: backend style
+      root: "gscanner/"
+      glob: "*.py"
+      run: ruff format {staged_files}
+      stage_fixed: true
