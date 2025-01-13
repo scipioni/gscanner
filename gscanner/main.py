@@ -18,6 +18,9 @@ def main():
 
     def capture():
         frame = camera.get()
+
+        if config.fish:
+            frame = utils.unfisheye(frame)
     
         ratio = frame.shape[0] / config.height
         frame_debug = imutils.resize(frame, height=config.height)

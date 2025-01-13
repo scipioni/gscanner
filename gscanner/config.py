@@ -28,6 +28,7 @@ def get_config() -> Any:
     parser.add_argument("--debug", action="store_true", default=False, help="debug")
     parser.add_argument("--image", default="", help="open image instead of webcam")
     parser.add_argument("--gstreamer", action="store_true", default=False, help="use gstreamer backend")
+    parser.add_argument("--fish", action="store_true", default=False, help="unfish image")
 
     parser.add_argument(
         "--height",

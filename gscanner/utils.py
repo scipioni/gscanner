@@ -81,3 +81,19 @@ def four_point_transform(image, pts):
 def show(image, title="image"):
     cv.imshow(title, image)
     cv.waitKey(1)
+
+
+def unfisheye(img):
+    K = np.array([[  689.21,     0.  ,  1295.56],
+                  [    0.  ,   690.48,   942.17],
+                  [    0.  ,     0.  ,     1.  ]])
+
+# zero distortion coefficients work well for this image
+    D = np.array([0., 0., 0., 0.])
+
+# use knew to scale the output
+    knew = K.copy()
+    knew[(0,1), (0,1)] = 0.4 * knew[(0,1), (0,1)]
+
+
+    return cv.fisheye.undistortImage(img, K, D=D, Knew=knew)
