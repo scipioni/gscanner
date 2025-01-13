@@ -1,6 +1,6 @@
 import cv2 as cv
-import numpy as np
 import imutils
+import numpy as np
 
 
 def detect_paper_canny(image, debug=False):
