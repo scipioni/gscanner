@@ -9,7 +9,6 @@ authors = [
 dependencies = [
     "configargparse>=1.7",
     "imutils>=0.5.4",
-    "skimage>=0.0",
     "scikit-image>=0.25.0"
 ]
 requires-python = ">=3.10"
@@ -27,7 +26,8 @@ excludes = ["**/.*_cache", "**/__pycache__"]
 includes = ["gscanner"]
 
 
-[tool.pdm.dev-dependencies]
+
+[dependency-groups]
 dev = [
-    "jurigged>=0.5.7",
+    "jurigged>=0.6.0",
 ]
