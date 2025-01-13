@@ -27,6 +27,7 @@ def get_config() -> Any:
 
     parser.add_argument("--debug", action="store_true", default=False, help="debug")
     parser.add_argument("--image", default="", help="open image instead of webcam")
+    parser.add_argument("--gstreamer", action="store_true", default=False, help="use gstreamer backend")
 
     parser.add_argument(
         "--height",
@@ -36,10 +37,12 @@ def get_config() -> Any:
     )
     parser.add_argument(
         "--camera",
-        type=int,
-        default=1,
+        #type=int,
+        default="/dev/video0",
         help="camera to open",
     )
+    parser.add_argument( "-w", type=int, default=1920, help="width",)
+    parser.add_argument( "-h", type=int, default=1080, help="height",)
     config, _ = parser.parse_known_args()
 
     if config.debug:

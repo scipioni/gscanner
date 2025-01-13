@@ -17,7 +17,7 @@ class Handler:
 
 
 class Gui:
-    def __init__(self, callback):
+    def __init__(self):
         builder = Gtk.Builder()
         builder.add_from_file(
             os.path.join(os.path.dirname(gscanner.__file__), "main.glade")
@@ -27,10 +27,11 @@ class Gui:
         self.canvas = builder.get_object("image")
         self.window.show_all()
         builder.connect_signals(Handler())
-        GLib.idle_add(callback)
+        #GLib.idle_add(callback)
         # Gtk.main()
 
-    def run(self):
+    def run(self, callback):
+        GLib.idle_add(callback)
         Gtk.main()
 
     def show(self, frame):
