@@ -30,7 +30,6 @@ def main():
         box = utils.detect_paper_canny(frame_debug, debug=config.debug)
 
         if box is not None:
-            pass
             warped = utils.warp(frame, box, ratio)
             # utils.show(warped, title="warped")
         gui.show(frame_debug)

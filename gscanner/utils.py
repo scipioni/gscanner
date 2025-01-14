@@ -3,10 +3,22 @@ import imutils
 import numpy as np
 
 
+params = {"canny1": 20, "canny2": 20}
+
+def on_canny1(val):
+    global params
+    params["canny1"] = val
+
+def on_canny2(val):
+    global params
+    params["canny2"] = val
+
 def detect_paper_canny(image, debug=False):
+    global params
+
     gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
     gray = cv.GaussianBlur(gray, (5, 5), 0)
-    edged = cv.Canny(gray, 75, 200)
+    edged = cv.Canny(gray, params["canny1"], params["canny2"])
 
     cnts = cv.findContours(edged.copy(), cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
@@ -26,6 +38,15 @@ def detect_paper_canny(image, debug=False):
         cv.drawContours(image, [screenCnt], -1, (0, 255, 0), 2)
 
     if debug:
+        if not params.get("canny_create"):
+            cv.namedWindow("canny")
+            params["canny"] = True
+        if not params.get("canny1_create"):
+            cv.createTrackbar("canny1", "canny", params["canny1"], 255, on_canny1)
+            params["canny1_create"] = True
+        if not params.get("canny2_create"):
+            cv.createTrackbar("canny2", "canny", params["canny2"], 255, on_canny2)
+            params["canny2_create"] = True
         cv.imshow("canny", edged)
         cv.imshow("image", image)
         cv.waitKey(1)
@@ -84,13 +105,28 @@ def show(image, title="image"):
 
 
 def unfisheye(img):
-    K = np.array([[689.21, 0.0, 1295.56], [0.0, 690.48, 942.17], [0.0, 0.0, 1.0]])
+    DIM = (8000, 6000)
+    K = np.array(
+        [
+            [300772.12680186087, 0.0, 4267.443587842004],
+            [0.0, 299655.0365974141, 3428.0867875641834],
+            [0.0, 0.0, 1.0],
+        ]
+    )
+    D = np.array(
+        [
+            [-584.3734549284128],
+            [846224.2265958918],
+            [-2584558195.32632],
+            [4125317093154.449],
+        ]
+    )
+    h, w = img.shape[:2]
 
-    # zero distortion coefficients work well for this image
-    D = np.array([0.0, 0.0, 0.0, 0.0])
-
-    # use knew to scale the output
-    knew = K.copy()
-    knew[(0, 1), (0, 1)] = 0.4 * knew[(0, 1), (0, 1)]
-
-    return cv.fisheye.undistortImage(img, K, D=D, Knew=knew)
+    map1, map2 = cv.fisheye.initUndistortRectifyMap(
+        K, D, np.eye(3), K, DIM, cv.CV_16SC2
+    )
+    undistorted_img = cv.remap(
+        img, map1, map2, interpolation=cv.INTER_LINEAR, borderMode=cv.BORDER_CONSTANT
+    )
+    return undistorted_img
